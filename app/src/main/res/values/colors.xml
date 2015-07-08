@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="dark_green">#009688</color>
+    <color name="white">#fff</color>
+
+    <!-- Template color -->
+    <color name="header">@color/dark_green</color>
+    <color name="header_text">@color/white</color>
+</resources>

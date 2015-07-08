@@ -1,0 +1,28 @@
+<resources>
+    <string name="app_name">Popular Movies App</string>
+    <string name="action_settings">Settings</string>
+
+    <!-- Setting -->
+    <!-- Label for the metrics preference [CHAR LIMIT=30] -->
+    <string name="pref_order_label">Sort order by</string>
+    <!-- Key name for storing order in SharedPreferences [CHAR LIMIT=NONE] -->
+    <string name="pref_order_key" translatable="false">sort_order</string>
+    <!-- Default order preference [CHAR LIMIT=NONE] -->
+    <string-array name="pref_array_order">
+        <item>Most popular</item>
+        <item>Highest-rated</item>
+    </string-array>
+    <string-array name="pref_array_order_values">
+        <item>popularity.desc</item>
+        <item>vote_average.desc</item>
+    </string-array>
+    <string name="pref_order_default" translatable="false">popularity.desc</string>
+    <string name="title_activity_settings">Settings</string>
+    <string name="title_activity_movie_detail">MovieDetailActivity</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="damn_movie_name">Movie Name</string>
+    <string name="damn_movie_date">2015</string>
+    <string name="default_rate_value">N/A</string>
+    <string name="image_description">Image</string>
+
+</resources>

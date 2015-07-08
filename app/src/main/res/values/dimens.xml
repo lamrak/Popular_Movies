@@ -1,0 +1,17 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="header_padding_top">42dp</dimen>
+    <dimen name="header_padding_bottom">42dp</dimen>
+    <dimen name="header_padding_left_right">18dp</dimen>
+    <dimen name="header_text_size">38sp</dimen>
+    <dimen name="default_view_margin_bottom">12dp</dimen>
+    <dimen name="detail_poster_width">180dp</dimen>
+    <dimen name="detail_poster_right_padding">18dp</dimen>
+    <dimen name="date_text_size">26sp</dimen>
+    <dimen name="rate_text_size">20sp</dimen>
+    <dimen name="grid_item_padding_top_bottom">3dp</dimen>
+    <dimen name="overview_text_padding_start_end">8dp</dimen>
+    <dimen name="poster_min_height">60dp</dimen>
+</resources>
