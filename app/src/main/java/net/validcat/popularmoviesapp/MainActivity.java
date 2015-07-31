@@ -9,12 +9,18 @@ import android.view.MenuItem;
 
 public class MainActivity extends ActionBarActivity {
 
+    private static final String FRAGMENT_TAG = "fragment_tag";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+//
+//        if (savedInstanceState == null)
+//            getSupportFragmentManager().beginTransaction()
+//                    .add(R.id.fragment, new GridMoviesFragment(), FRAGMENT_TAG)
+//                    .commit();
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

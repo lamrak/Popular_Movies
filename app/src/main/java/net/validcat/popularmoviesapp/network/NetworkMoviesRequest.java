@@ -1,10 +1,9 @@
 package net.validcat.popularmoviesapp.network;
 
+import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
-
-import net.validcat.popularmoviesapp.model.MovieItem;
 
 import org.json.JSONException;
 
@@ -14,7 +13,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.List;
 
 /**
  * Created by Dobrunov on 16.06.2015.
@@ -28,7 +26,7 @@ public class NetworkMoviesRequest {
     private static final String API_KEY = "da627faeb40cedb6c25f814b357ea48e";
     private static int resultCount = 10; // 10 by default
 
-    public void fetchSortedMovies(String sortBy, IResponseListener listener) {
+    public void fetchSortedMovies(Context context, String sortBy, IResponseListener listener) {
         // Construct the URL for the MovieDB query
         String strUrl = new Uri.Builder()
                 .scheme(HTTP_SCHEME)
@@ -39,7 +37,7 @@ public class NetworkMoviesRequest {
                 .appendQueryParameter(PARAM_SORT_BY, sortBy)
                 .appendQueryParameter(PARAM_API_KEY, API_KEY)
                 .build().toString();
-        new FetcherTask(listener).execute(strUrl);
+        new FetcherTask(context, listener).execute(strUrl);
     }
 
     public static void setResultCount(int resultCount) {
@@ -48,9 +46,11 @@ public class NetworkMoviesRequest {
 
     private class FetcherTask extends AsyncTask<String, Void, String> {
         IResponseListener listener;
+        Context context;
 
-        public FetcherTask(IResponseListener listener) {
+        public FetcherTask(Context context, IResponseListener listener) {
             this.listener = listener;
+            this.context = context;
         }
 
         @Override
@@ -108,11 +108,7 @@ public class NetworkMoviesRequest {
             if (result == null)
                 listener.onError("Server error");
             try {
-                List<MovieItem> movies = MovieResponceParser.getMoviesFromJson(result, resultCount);
-                if (movies != null && movies.size() != 0)
-                    listener.onResult(movies);
-                else
-                    listener.onError("ListMovies is null or empty");
+                MovieResponceParser.storeMoviesFromJsonInProvider(context, result, resultCount);
             } catch (JSONException e) {
                 e.printStackTrace();
                 listener.onError(e.toString());
@@ -121,7 +117,6 @@ public class NetworkMoviesRequest {
     }
 
     public interface IResponseListener {
-        void onResult(List<MovieItem> items);
         void onError(String error);
     }
 }

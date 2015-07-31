@@ -1,6 +1,11 @@
 package net.validcat.popularmoviesapp.network;
 
+import android.content.ContentValues;
+import android.content.Context;
+import android.util.Log;
+
 import net.validcat.popularmoviesapp.model.MovieItem;
+import net.validcat.popularmoviesapp.provider.MovieContract;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -59,5 +64,37 @@ public class MovieResponceParser {
         }
 
         return movies;
+    }
+
+    public static void storeMoviesFromJsonInProvider(Context context, String json, int moviesNum) throws JSONException {
+        // These are the names of the JSON objects that need to be extracted.
+        JSONObject forecastJson = new JSONObject(json);
+        JSONArray jsonMoviesArray = forecastJson.getJSONArray(KEY_RESULTS);
+
+        List<ContentValues> movies = new ArrayList<>(moviesNum);
+        // in case if receive movies less than want to show
+        int length = forecastJson.length() < moviesNum ? forecastJson.length() : moviesNum;
+
+        for(int i = 0; i < moviesNum; i++) {
+            ContentValues locationValues = new ContentValues();
+
+            JSONObject jsonMovie = jsonMoviesArray.getJSONObject(i);
+            locationValues.put(MovieContract.MovieEntry.COLUMN_TITLE, jsonMovie.getString(KEY_TITLE));
+            locationValues.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, jsonMovie.getString(KEY_OVERVIEW));
+            locationValues.put(MovieContract.MovieEntry.COLUMN_THUMBNAIL_PATH, jsonMovie.getString(KEY_POSTER_PATH));
+            locationValues.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, jsonMovie.getString(KEY_RELEASE_DATE));
+            locationValues.put(MovieContract.MovieEntry.COLUMN_RATE, jsonMovie.getString(KEY_RATE));
+
+            movies.add(locationValues);
+        }
+
+        int inserted = 0;
+        // add to database
+        if (movies.size() > 0 ) {
+            ContentValues[] cvArray = new ContentValues[movies.size()];
+            movies.toArray(cvArray);
+            inserted = context.getContentResolver().bulkInsert(MovieContract.MovieEntry.CONTENT_URI, cvArray);
+        }
+        Log.d(LOG_TAG, "FetchWeatherTask Complete. " + inserted + " Inserted");
     }
 }
