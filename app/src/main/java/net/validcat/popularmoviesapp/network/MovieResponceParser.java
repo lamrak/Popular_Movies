@@ -2,6 +2,7 @@ package net.validcat.popularmoviesapp.network;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.util.Log;
 
 import net.validcat.popularmoviesapp.model.MovieItem;
@@ -79,13 +80,26 @@ public class MovieResponceParser {
             ContentValues locationValues = new ContentValues();
 
             JSONObject jsonMovie = jsonMoviesArray.getJSONObject(i);
-            locationValues.put(MovieContract.MovieEntry.COLUMN_TITLE, jsonMovie.getString(KEY_TITLE));
-            locationValues.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, jsonMovie.getString(KEY_OVERVIEW));
-            locationValues.put(MovieContract.MovieEntry.COLUMN_THUMBNAIL_PATH, jsonMovie.getString(KEY_POSTER_PATH));
-            locationValues.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, jsonMovie.getString(KEY_RELEASE_DATE));
-            locationValues.put(MovieContract.MovieEntry.COLUMN_RATE, jsonMovie.getString(KEY_RATE));
 
-            movies.add(locationValues);
+            //movie.movie_title = ?
+            Cursor movieCursor = context.getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI,
+                    new String[]{MovieContract.MovieEntry._ID, MovieContract.MovieEntry.COLUMN_TITLE},
+                    MovieContract.MovieEntry.COLUMN_TITLE + " = ? ",
+                    new String[]{jsonMovie.getString(KEY_TITLE)}, null); //TODO add get movie by title
+            if (movieCursor.moveToFirst()) {
+                String title = movieCursor.getString(MovieItem.COL_MOVIE_TITLE);
+                Log.d(LOG_TAG, "Movie " + title + " is already in database, update? ");
+            } else {
+                Log.d(LOG_TAG, "Movie is new, add into db");
+                locationValues.put(MovieContract.MovieEntry.COLUMN_TITLE, jsonMovie.getString(KEY_TITLE));
+                locationValues.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, jsonMovie.getString(KEY_OVERVIEW));
+                locationValues.put(MovieContract.MovieEntry.COLUMN_THUMBNAIL_PATH, jsonMovie.getString(KEY_POSTER_PATH));
+                locationValues.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, jsonMovie.getString(KEY_RELEASE_DATE));
+                locationValues.put(MovieContract.MovieEntry.COLUMN_RATE, jsonMovie.getString(KEY_RATE));
+
+                movies.add(locationValues);
+            }
+            movieCursor.close();
         }
 
         int inserted = 0;

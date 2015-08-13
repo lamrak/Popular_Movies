@@ -32,6 +32,13 @@ public class MovieContract {
             return CONTENT_URI;
         }
 
+        public static Uri buildMovieTitle(String title) {
+            return CONTENT_URI.buildUpon().appendPath(title).build();
+        }
+
+        public static String getMovieTitleFromUri(Uri uri) {
+            return uri.getPathSegments().get(1);
+        }
         //TODO buildFavoriteMoviesUri ???
     }
 
