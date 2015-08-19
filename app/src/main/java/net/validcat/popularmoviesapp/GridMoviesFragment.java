@@ -1,7 +1,5 @@
 package net.validcat.popularmoviesapp;
 
-import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.database.Cursor;
@@ -13,19 +11,19 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.Toast;
+import android.widget.ListView;
 
-import com.squareup.picasso.Picasso;
-
-import net.validcat.popularmoviesapp.adapters.CursorRecyclerViewAdapter;
+import net.validcat.popularmoviesapp.adapters.GridMoviesAdapter;
+import net.validcat.popularmoviesapp.db.Constants;
 import net.validcat.popularmoviesapp.model.MovieItem;
 import net.validcat.popularmoviesapp.network.NetworkMoviesRequest;
 import net.validcat.popularmoviesapp.provider.MovieContract;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
 
 import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 
@@ -34,31 +32,32 @@ import static android.preference.PreferenceManager.getDefaultSharedPreferences;
  */
 public class GridMoviesFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final String LOG_TAG = "GridMoviesFragment";
-    private static final int PORTRAIT_COL_NUMBER = 2;
-    private static final int LANDSCAPE_COL_NUMBER = 3;
-    private static final int DEFAULT_PORTRAIT_RESULT_LIMIT = 20;
-    private static final int DEFAULT_LANDSCAPE_RESULT_LIMIT = 21;
     private static final int LOADER_ID = 0;
-
+    @Bind(R.id.recycler_view) RecyclerView recyclerView;
     private GridMoviesAdapter adapter;
+    private boolean useTabLayout;
+
+    private int position = ListView.INVALID_POSITION;
 
     public GridMoviesFragment() {
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        String sortOrder = MovieContract.MovieEntry.COLUMN_RELEASE_DATE + " ASC";
-        Uri uri = MovieContract.MovieEntry.buildMoviesUri();
+        String sortOrder = Utility.getPreferredSortOrder(getActivity());
+        Uri uri = MovieContract.MovieEntry.buildMoviesUriBySortOrder(sortOrder);
 
         return new CursorLoader(getActivity(),
                 uri,
                 MovieItem.MOVIE_COLUMNS,
-                null, null, sortOrder);
+                null, null, MovieContract.MovieEntry.COLUMN_RATE + " DESC");
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         adapter.swapCursor(data);
+        if (position != ListView.INVALID_POSITION)
+            recyclerView.smoothScrollToPosition(position);
     }
 
     @Override
@@ -69,7 +68,6 @@ public class GridMoviesFragment extends Fragment implements LoaderManager.Loader
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
         getLoaderManager().initLoader(LOADER_ID, null, this);
     }
 
@@ -77,87 +75,57 @@ public class GridMoviesFragment extends Fragment implements LoaderManager.Loader
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-        RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_view);
-//		recyclerView.setHasFixedSize(true);
-
-        int numOfView = getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT 
-                ? PORTRAIT_COL_NUMBER : LANDSCAPE_COL_NUMBER;
+        ButterKnife.bind(this, rootView);
+		recyclerView.setHasFixedSize(true);
+        int numOfView = getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT
+                ? Constants.PORTRAIT_COL_NUMBER : Constants.LANDSCAPE_COL_NUMBER; //TODO Can we move this to layout somehow?
         GridLayoutManager lm = new GridLayoutManager(getActivity(), numOfView, GridLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(lm);
 
         adapter = new GridMoviesAdapter(getActivity(), null);
         recyclerView.setAdapter(adapter);
+        if (savedInstanceState != null && savedInstanceState.containsKey(Constants.SELECTED_KEY))
+            position = savedInstanceState.getInt(Constants.SELECTED_KEY);
 
+        updateMovies();
         return rootView;
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-        updateMovies();
+    public void onSaveInstanceState(Bundle outState) {
+        if (position != ListView.INVALID_POSITION)
+            outState.putInt(Constants.SELECTED_KEY, position);
+        super.onSaveInstanceState(outState);
     }
 
-    private void updateMovies() {
+    public void updateMovies() {
         int limit = getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT
-                ? DEFAULT_PORTRAIT_RESULT_LIMIT : DEFAULT_LANDSCAPE_RESULT_LIMIT;
+                ? Constants.DEFAULT_PORTRAIT_RESULT_LIMIT : Constants.DEFAULT_LANDSCAPE_RESULT_LIMIT;
         NetworkMoviesRequest movieRequest = new NetworkMoviesRequest();
         NetworkMoviesRequest.setResultCount(limit); //TODO default result limit value
 
         SharedPreferences prefs = getDefaultSharedPreferences(getActivity());
-        String sortBy = prefs.getString(getString(R.string.pref_order_key), getString(R.string.pref_order_default));
-        //TODO sortBy
-        movieRequest.fetchSortedMovies(getActivity(), sortBy, new NetworkMoviesRequest.IResponseListener() {
-
-            @Override
-            public void onError(String error) {
-                Toast.makeText(getActivity(), error, Toast.LENGTH_LONG).show();
-            }
-        });
+        String sortBy = prefs.getString(getString(R.string.pref_order_key), getString(R.string.pref_order_popular));
+        //TODO in case if sortBy equals to favorite,
+        // no need to make network request cause all data
+        // is already in database, just fetch this data from
+        // db
+        //if (sortBy.equals(getString(R.string.pref_order_favorite)))
+        movieRequest.fetchSortedMovies(getActivity(), sortBy);
+        //else getLoaderManager().restartLoader(LOADER_ID, null, this);
     }
 
-    public class GridMoviesAdapter extends CursorRecyclerViewAdapter<GridMoviesAdapter.ViewHolder> {
-
-        public GridMoviesAdapter(Context context, Cursor cursor){
-            super(context, cursor);
-        }
-
-        @Override
-        public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-            ImageView iv = (ImageView) LayoutInflater.from(viewGroup.getContext())
-                    .inflate(R.layout.grid_item, viewGroup, false);
-            ViewHolder viewHolder = new ViewHolder(iv);
-
-            return viewHolder;
-        }
-
-        @Override
-        public void onBindViewHolder(ViewHolder holder, final Cursor cursor) {
-            String url = MovieItem.getFullPosterPath(cursor, MovieItem.WIDTH_500); // cursor.getString(MovieItem.COL_MOVIE_THUMB_PATH);
-            if (!TextUtils.isEmpty(url))
-                Picasso.with(getActivity())
-                        .load(url)
-                        .placeholder(R.drawable.image_placeholder)
-                        .into(holder.iv);
-
-            holder.iv.setOnClickListener(new View.OnClickListener() {
-
-                @Override
-                public void onClick(View v) {
-                    MovieItem item = MovieItem.createItemFromCursor(cursor);
-                    Intent intent = new Intent(getActivity(), MovieDetailActivity.class);
-                    item.fillMovieData(intent);
-                    startActivity(intent);
-                }
-            });
-        }
-
-        class ViewHolder extends RecyclerView.ViewHolder {
-            public ImageView iv;
-
-            public ViewHolder(ImageView iv) {
-                super(iv);
-                this.iv = iv;
-            }
-        }
+    public void setUseTabLayout(boolean useTabLayout) {
+        this.useTabLayout = useTabLayout;
     }
+
+    public void resetAndUpdateMovies() {
+        updateMovies();
+        getLoaderManager().restartLoader(LOADER_ID, null, this);
+    }
+
+    public interface IClickListener {
+        void onItemClicked(Uri uri);
+    }
+
 }

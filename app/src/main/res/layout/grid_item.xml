@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ImageView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:paddingTop="@dimen/grid_item_padding_top_bottom"
-    android:scaleType="fitCenter"
-    android:paddingBottom="@dimen/grid_item_padding_top_bottom"/>
+    android:layout_height="260dp"
+    android:paddingBottom="6dp"
+    android:paddingTop="6dp" />

@@ -10,7 +10,7 @@
     <dimen name="detail_poster_width">180dp</dimen>
     <dimen name="detail_poster_right_padding">18dp</dimen>
     <dimen name="date_text_size">26sp</dimen>
-    <dimen name="rate_text_size">20sp</dimen>
+    <dimen name="rate_text_size">18sp</dimen>
     <dimen name="grid_item_padding_top_bottom">3dp</dimen>
     <dimen name="overview_text_padding_start_end">8dp</dimen>
     <dimen name="poster_min_height">60dp</dimen>

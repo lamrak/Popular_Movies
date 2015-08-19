@@ -11,10 +11,14 @@ import android.support.annotation.NonNull;
 
 public class MovieProvider extends ContentProvider {
     public static final int MOVIE = 100;
+    public static final int MOVIE_BY_ID = 101;
+    public static final int MOVIE_BY_SORT_ORDER = 102;
     private static UriMatcher uriMatcher;
     static {
         uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
         uriMatcher.addURI(MovieContract.CONTENT_AUTHORITY, MovieContract.PATH_MOVIE, MOVIE);
+        uriMatcher.addURI(MovieContract.CONTENT_AUTHORITY, MovieContract.PATH_MOVIE + "/#", MOVIE_BY_ID);
+        uriMatcher.addURI(MovieContract.CONTENT_AUTHORITY, MovieContract.PATH_MOVIE + "/*", MOVIE_BY_SORT_ORDER);
     }
     MovieDbHelper dbHelper;
 
@@ -29,6 +33,10 @@ public class MovieProvider extends ContentProvider {
         switch (uriMatcher.match(uri)) {
             case MOVIE:
                 return MovieContract.MovieEntry.CONTENT_TYPE;
+            case MOVIE_BY_ID:
+                return MovieContract.MovieEntry.CONTENT_ITEM_TYPE;
+            case MOVIE_BY_SORT_ORDER:
+                return MovieContract.MovieEntry.CONTENT_TYPE;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -40,6 +48,9 @@ public class MovieProvider extends ContentProvider {
         int deletedRows;
         switch (uriMatcher.match(uri)) {
             case MOVIE:
+                deletedRows = db.delete(MovieContract.MovieEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+            case MOVIE_BY_ID:
                 deletedRows = db.delete(MovieContract.MovieEntry.TABLE_NAME, selection, selectionArgs);
                 break;
             default:
@@ -69,6 +80,30 @@ public class MovieProvider extends ContentProvider {
                         null,
                         sortOrder);
                 break;
+            case MOVIE_BY_ID:
+                cursor = dbHelper.getReadableDatabase().query(
+                        MovieContract.MovieEntry.TABLE_NAME,
+                        projection,
+                        MovieContract.MovieEntry.TABLE_NAME +
+                                "." + MovieContract.MovieEntry._ID + " = ? ",
+                        new String[]{MovieContract.MovieEntry.getMovieIdFromUri(uri)},
+                        null,
+                        null,
+                        sortOrder);
+                break;
+            case MOVIE_BY_SORT_ORDER:
+                String sortOrderField = MovieContract.MovieEntry.getSortOrderFromUri(uri);
+                selection = MovieContract.MovieEntry.TABLE_NAME +
+                        "." + sortOrderField + " = ? ";
+                cursor = dbHelper.getReadableDatabase().query(
+                        MovieContract.MovieEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        new String[]{"1"},
+                        null,
+                        null,
+                        sortOrder);
+                break;
             default:
                 throw new UnsupportedOperationException("Not yet implemented");
         }
@@ -85,6 +120,9 @@ public class MovieProvider extends ContentProvider {
         switch (uriMatcher.match(uri)) {
             case MOVIE:
 //                normalizeDate(values);
+                affectedRows = db.update(MovieContract.MovieEntry.TABLE_NAME, values, selection, selectionArgs);
+                break;
+            case MOVIE_BY_ID:
                 affectedRows = db.update(MovieContract.MovieEntry.TABLE_NAME, values, selection, selectionArgs);
                 break;
             default:
@@ -125,7 +163,6 @@ public class MovieProvider extends ContentProvider {
                 int returnCount = 0;
                 try {
                     for (ContentValues value : values) {
-//                        normalizeDate(value);
                         long id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, value);
                         if (id != -1) {
                             returnCount++;
@@ -142,14 +179,6 @@ public class MovieProvider extends ContentProvider {
                 return super.bulkInsert(uri, values);
         }
     }
-
-//    private void normalizeDate(ContentValues values) {
-//        // normalize the date value
-//        if (values.containsKey(MovieContract.MovieEntry.COLUMN_RELEASE_DATE)) {
-//            String dateValue = values.getAsString(MovieContract.MovieEntry.COLUMN_RELEASE_DATE);
-//            values.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, MovieContract.normalizeDate(dateValue));
-//        }
-//    }
 
     @Override
     @TargetApi(11)

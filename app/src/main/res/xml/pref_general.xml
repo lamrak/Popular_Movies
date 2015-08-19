@@ -9,6 +9,6 @@
         android:dialogTitle="@string/pref_order_label"
         android:entries="@array/pref_array_order"
         android:entryValues="@array/pref_array_order_values"
-        android:defaultValue="@string/pref_order_default" />
+        android:defaultValue="@string/pref_order_popular" />
 
 </PreferenceScreen>

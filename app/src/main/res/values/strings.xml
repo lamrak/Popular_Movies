@@ -1,9 +1,11 @@
 <resources>
     <string name="app_name">Popular Movies App</string>
-    <string name="action_settings">Settings</string>
 
     <!-- Setting -->
-    <!-- Label for the metrics preference [CHAR LIMIT=30] -->
+    <string name="title_activity_settings">Settings</string>
+    <string name="title_movie_detail">Movie Detail</string>
+
+    <!-- Label for the sort preference [CHAR LIMIT=30] -->
     <string name="pref_order_label">Sort order by</string>
     <!-- Key name for storing order in SharedPreferences [CHAR LIMIT=NONE] -->
     <string name="pref_order_key" translatable="false">sort_order</string>
@@ -11,18 +13,24 @@
     <string-array name="pref_array_order">
         <item>Most popular</item>
         <item>Highest-rated</item>
+        <item>Favorite</item>
     </string-array>
+    <!-- array sort values -->
     <string-array name="pref_array_order_values">
-        <item>popularity.desc</item>
-        <item>vote_average.desc</item>
+        <item>@string/pref_order_popular</item>
+        <item>@string/pref_order_newest</item>
+        <item>@string/pref_order_favorite</item>
     </string-array>
-    <string name="pref_order_default" translatable="false">popularity.desc</string>
-    <string name="title_activity_settings">Settings</string>
-    <string name="title_activity_movie_detail">MovieDetailActivity</string>
-    <string name="hello_world">Hello world!</string>
+    <!-- Default sort value -->
+    <string name="pref_order_popular" translatable="false">popularity</string>
+    <string name="pref_order_favorite" translatable="false">favorite</string>
+    <string name="pref_order_newest" translatable="false">vote_average</string>
+
     <string name="damn_movie_name">Movie Name</string>
     <string name="damn_movie_date">2015</string>
     <string name="default_rate_value">N/A</string>
     <string name="image_description">Image</string>
+    <string name="trailers">Trailers</string>
+    <string name="peoples_says">Peoples says:</string>
 
 </resources>

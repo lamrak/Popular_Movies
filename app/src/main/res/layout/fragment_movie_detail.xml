@@ -23,7 +23,7 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/scrollView"
+        android:id="@+id/scroll_content"
         android:layout_below="@+id/tv_header"
         android:layout_centerHorizontal="true"
         android:paddingTop="@dimen/default_view_margin_bottom">
@@ -33,20 +33,20 @@
             android:layout_height="wrap_content">
 
             <ImageView
-                android:layout_width="@dimen/detail_poster_width"
-                android:layout_height="wrap_content"
-                android:minHeight="@dimen/poster_min_height"
+                android:layout_width="200dp"
+                android:layout_height="260dp"
                 android:id="@+id/iv_poster"
                 android:contentDescription="@string/image_description"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
+                android:scaleType="centerInside"
                 android:layout_marginRight="@dimen/detail_poster_right_padding"
+                android:layout_marginEnd="@dimen/detail_poster_right_padding"
                 android:layout_marginBottom="@dimen/default_view_margin_bottom" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/damn_movie_date"
                 android:textSize="@dimen/date_text_size"
                 android:id="@+id/tv_date"
                 android:layout_alignTop="@+id/iv_poster"
@@ -57,13 +57,31 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/default_rate_value"
                 android:id="@+id/tv_rate"
                 android:textSize="@dimen/rate_text_size"
                 android:layout_below="@+id/tv_date"
                 android:layout_alignLeft="@+id/tv_date"
                 android:layout_alignStart="@+id/tv_date"
                 android:layout_marginBottom="@dimen/default_view_margin_bottom" />
+
+            <!--TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tv_movie_duration"
+                android:textStyle="italic"
+                android:layout_below="@+id/tv_date"
+                android:layout_alignLeft="@+id/tv_date"
+                android:layout_alignStart="@+id/tv_date" /-->
+
+            <CheckBox
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/check_favorite"
+                android:layout_below="@+id/tv_rate"
+                android:layout_alignLeft="@+id/tv_date"
+                android:layout_alignStart="@+id/tv_date"
+                android:layout_marginBottom="@dimen/default_view_margin_bottom"
+                style="?android:attr/starStyle" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -73,8 +91,30 @@
                 android:layout_alignParentStart="true"
                 android:layout_below="@+id/iv_poster"
                 android:layout_marginBottom="@dimen/default_view_margin_bottom"
-                android:paddingLeft="@dimen/overview_text_padding_start_end"/>
+                android:paddingLeft="@dimen/overview_text_padding_start_end" />
 
+            <include
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                layout="@layout/layout_trailers"
+                android:layout_below="@+id/tv_overview"
+                android:id="@+id/trailers_list_layout"
+                android:layout_marginBottom="@dimen/default_view_margin_bottom">
+            </include>
+
+            <include
+                android:id="@+id/layout_reviews"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_marginTop="20dp"
+                layout="@layout/layout_comments"
+                android:layout_below="@+id/trailers_list_layout"
+                android:layout_marginBottom="@dimen/default_view_margin_bottom">
+            </include>
         </RelativeLayout>
 
     </ScrollView>
