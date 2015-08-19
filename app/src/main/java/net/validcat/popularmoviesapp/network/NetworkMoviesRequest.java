@@ -28,7 +28,7 @@ public class NetworkMoviesRequest {
     private static final String PARAM_SORT_BY = "sort_by";
     private static final String HTTP_SCHEME = "http";
     private static final String URL_AUTHORITY = "api.themoviedb.org";
-    private static final String API_KEY = "da627faeb40cedb6c25f814b357ea48e";
+    private static final String API_KEY = ""; //REMOVED
     private static int resultCount = Constants.DEFAULT_RESULT_NETWORK_LIMIT; // 10 by default
 
     public static void fetchSortedMovies(final Context context, final String sortBy) {
