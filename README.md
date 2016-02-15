@@ -1,6 +1,6 @@
 # Popular Movies
 
-Popular Movies App for Udacity Nanodegree
+Popular Movies App (Nanodegree)
 
 Project Overview
 
